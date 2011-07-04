@@ -1,0 +1,11 @@
+This is distributed under the CC Attribution license:
+http://creativecommons.org/licenses/by/3.0/
+
+Volified, space filling game clone. It is a WIP (Althoug I haven't worked on it much since 2006).
+In this game you control a ship that slowly fills in a space while trying to avoid dying
+to the various obstacles and monsters that try to foil you.
+
+Needs:
+Python, pygame.
+
+MS@svedersoft.com, 04/06
