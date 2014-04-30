@@ -23,10 +23,12 @@ class Player(pygame.sprite.Sprite):
         
         #Declare some variables:
         self.movement_per_press = settings.PLAYER_MOVE_SPEED
-        self.current_direction = settings.D_DOWN
+        self.current_direction = settings.D_UP
         self.is_attacking = False
         self.num_of_lines = 0
         self.num_of_points = 0
+        
+        self.line_segments = []
             
 
     def fill_place(self):
@@ -36,109 +38,109 @@ class Player(pygame.sprite.Sprite):
         ###WRITE THE CODE
 
            
-    def move(self, direction, is_attacking = False):
+    def move(self, direction, is_attacking=False):
         """
         Moves the ship if possible.
         """
         #Adjust the direction of the image:
-        if direction_in_words != self.current_direction:
-            self.change_image_direction(direction_in_words)
+        if direction != self.current_direction:
+            self.change_image_direction(direction)
             
         old_attacking = self.is_attacking
-        
-        #Add the current rect to the dirty rects list:
-        global dirty_rects
-        dirty_rects += [self.rect]
+        old_rect = self.rect
+        dirty_rects = [old_rect]
         
         #If the player started attacking:
-        if (not is_attacking) and (not game_board.can_move(self.rect.center)):
+        if (not is_attacking) and (not self.game_board.can_move(self.rect.center)):
             self.is_attacking = True
         else:
             self.is_attacking = is_attacking
         
         for i in xrange(self.movement_per_press):
-            self._move_once(direction , direction_in_words)
+            self._move_once(direction)
             
         #Add the new rect to the dirty rects list:
-        dirty_rects += [self.rect]
+        dirty_rects.append(self.rect)
         
         #If finihed moving:
-        if game_board.can_move(self.rect.center):
-            self.FillPlace()
-        return self.rect
+        if self.game_board.can_move(self.rect.center):
+            self.fill_place()
+        
+        return dirty_rects
             
 
-    def _move_once(self , direction , direction_in_words):
+    def _move_once(self, direction):
         """
-        Moves the space ship by the movement_per_press to the direction direction
+        Moves the space ship by the one pixel to the direction given.
         
         Direction is a tuple (x , y) where x and y are either 1 , -1 or 0, where
         x is for vertical movemente and y for horizontal. Thus moving left is:
         (0 , -1).
         """
-        global fill_rects
-        
         #Move the image rect:
-        vert , hori = direction
+        vert , hori = direction.move_modifier
         new_rect = self.rect.move(vert , hori)
         
         #Don't do anything if if the ship can't move to the specified place:
         #Check if in the map:
-        if (not new_rect.centerx in game_board.x_ranges) or (not new_rect.centery in game_board.y_ranges):
+        if (not new_rect.centerx in self.game_board.x_ranges) or (not new_rect.centery in self.game_board.y_ranges):
             return
-        #Check if moving out of boreder without attacking:
-        if (not game_board.can_move(new_rect.center)) and (not self.is_attacking):
+        
+        #Check if moving out of border without attacking:
+        if (not self.game_board.can_move(new_rect.center)) and (not self.is_attacking):
             return
+        
         #Check if not going over an existing line:
-        if (not game_board.can_move(new_rect.center) and len(fill_rects) > 0):
-            for i in fill_rects:
-                if (Rect([new_rect.centerx , new_rect.centery , 0 , 0]).colliderect(i)):
+        if (not self.game_board.can_move(new_rect.center) and len(self.line_segments) > 0):
+            for i in self.line_segments:
+                if (pygame.Rect([new_rect.centerx, new_rect.centery, 0, 0]).colliderect(i)):
                     return
         
         #Create a line if there are too much points (to prevent lag):
         self.num_of_points += 1
-        if self.num_of_points > MAX_POINTS_BEFORE_LINE:
-            self._create_line(ANGLES_DICT[self.current_direction])
+        if self.num_of_points > settings.MAX_POINTS_BEFORE_LINE:
+            self._create_line(self.current_direction.angle_modifier)
         
-        #Replace the rect with the new one and add the middle to  the filled line behind it:
+        #Replace the rect with the new one and add the middle to the filled line behind it:
         self.rect = new_rect
-        if not game_board.can_move(new_rect.center):
-            fill_rects += [Rect([self.rect.centerx , self.rect.centery , 1 , 1])]
+        if not self.game_board.can_move(new_rect.center):
+            self.line_segments += [pygame.Rect([self.rect.centerx , self.rect.centery , 1 , 1])]
            
 
-    def change_image_direction(self , direction_in_words):
+    def change_image_direction(self, direction):
         """
-        Changes the image direction to the direction_in_words
+        Changes the image direction to the given direction.
         """
-        global game_board
-        if direction_in_words != self.current_direction:
-            #Get the direction from the string values:
-            old_direction = ANGLES_DICT[self.current_direction]
-            new_direction = ANGLES_DICT[direction_in_words]
+        if direction != self.current_direction:
+            old_direction = self.current_direction.angle_modifier
+            new_direction = direction.angle_modifier
             
             #And rotate the image:
             self.image = pygame.transform.rotate(self.image , 90 * -(new_direction - old_direction))
-            self.current_direction = direction_in_words
+            self.current_direction = direction
             
             self._create_line(old_direction)
         
 
-    def _create_line(self , old_direction):
+    def _create_line(self, direction):
         """
-        Creates a line off the points previously in the list
+        Creates a line of the points previously in the list.
         """
-        if (not game_board.can_move(self.rect.center)):
-            global fill_rects   
-            if old_direction == 2:
-                fill_me = Rect([self.rect.centerx - self.num_of_points , self.rect.centery , self.num_of_points + 1 , 1])
-            elif old_direction == 4:
-                fill_me = Rect([self.rect.centerx , self.rect.centery , self.num_of_points , 1])
-            elif old_direction == 3:
-                fill_me = Rect([self.rect.centerx , self.rect.centery - self.num_of_points, 1 , self.num_of_points + 1])
+        #TODO: Why do we need this conditional?
+        if (not self.game_board.can_move(self.rect.center)):
+            if direction == 2:
+                fill_me = pygame.Rect([self.rect.centerx - self.num_of_points , self.rect.centery , self.num_of_points + 1 , 1])
+            elif direction == 4:
+                fill_me = pygame.Rect([self.rect.centerx , self.rect.centery , self.num_of_points , 1])
+            elif direction == 3:
+                fill_me = pygame.Rect([self.rect.centerx , self.rect.centery - self.num_of_points, 1 , self.num_of_points + 1])
+            elif direction == 1:
+                fill_me = pygame.Rect([self.rect.centerx , self.rect.centery , 1 , self.num_of_points])
             else:
-                fill_me = Rect([self.rect.centerx , self.rect.centery , 1 , self.num_of_points])
+                raise ValueError("Direction given is not valid: %s." % direction)
                 
-            fill_rects[self.num_of_lines:] = [fill_me]
+            self.line_segments[self.num_of_lines:] = [fill_me]
             self.num_of_lines += 1
+            
         self.num_of_points = 0
 

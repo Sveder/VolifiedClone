@@ -22,16 +22,21 @@ BG_RECT = [20 , 50 , 760 , 530]             #Size of the bg image - to allow ful
 PLAYER_MOVE_SPEED = 5                       #Number of pixels the player moves
                                             #on a single key press
                                             
-D_UP = "up"
-D_DOWN = "down"
-D_RIGHT = "right"
-D_LEFT = "up"
 
-DIRECTIONS_DICT = {D_UP: 1 ,
-                   D_RIGHT : 2 ,
-                   D_DOWN : 3 ,
-                   D_LEFT : 4}
+class Direction:
+    def __init__(self, in_words, angle_modifier, move_modifier):
+        self.in_words = in_words
+        self.move_modifier = move_modifier
+        self.angle_modifier = angle_modifier
+    
+    def __repr__(self):
+        return "Direction %s" % self.in_words
 
+
+D_UP =    Direction("up",    1, (0, -1))
+D_RIGHT = Direction("right", 2, (1, 0))
+D_DOWN =  Direction("down",  3, (0, 1))
+D_LEFT =  Direction("left",  4, (-1, 0))
 
 
 #-------------------------------------------------------------------------------

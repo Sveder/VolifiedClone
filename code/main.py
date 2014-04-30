@@ -4,15 +4,19 @@ import pygame
 pygame.init()
 from pygame.colordict import THECOLORS
 
+import Player
 import settings
 import GameBoard
 from utilities import log
 
+g_dirty_rects = []
 
 def main():
     """
     The main game function
     """
+    clock = pygame.time.Clock()
+    
     log("Game started.")
     
     #Initialize the gameboard class and screen:
@@ -23,7 +27,7 @@ def main():
     screen.blit(game_board.bg_surface, game_board.bg_rect)
 
     #Initialize the player ship:
-    player_ship = Player()
+    player_ship = Player.Player(game_board)
     screen.blit(player_ship.image , player_ship.rect)
     
     #Show evrything:
@@ -31,55 +35,68 @@ def main():
     
     #A list of rects that changed since last update:
     global dirty_rects
-    dirty_rects = []
-    global fill_rects
-    fill_rects = []
-    
+    g_dirty_rects = []
     
     #A boolean specifying wheteher the space was pressed:
     is_attacking = False
     
     #Main event loop:
     while 1:
+        clock.tick()
+        
         for event in pygame.event.get():
-            if event.type == QUIT: #Quit...
-                Log("Player exited!")
-                os._exit(0)
+            if event.type == pygame.QUIT:
+                log("Player exited!")
+                return
                 
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    Log("Player exited!")
-                    os._exit(0)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    log("Player exited!")
+                    return
+                
 
         #Player moving:
         keystate = pygame.key.get_pressed()
         
-        if keystate[K_SPACE]:
+        if keystate[pygame.K_SPACE]:
             is_attacking = True
             
-        if keystate[K_LEFT]:
-            player_ship.move((-1 , 0) , "left" , is_attacking)
+        dirty_player_locations = []
+        if keystate[pygame.K_LEFT]:
+            dirty_player_locations = player_ship.move(settings.D_LEFT , is_attacking)
             
-        elif keystate[K_RIGHT]:
-            player_ship.move((1 , 0) , "right" , is_attacking)
+        elif keystate[pygame.K_RIGHT]:
+            dirty_player_locations = player_ship.move(settings.D_RIGHT , is_attacking)
             
-        elif keystate[K_UP]:
-            player_ship.move((0 , -1) , "up" , is_attacking)
+        elif keystate[pygame.K_UP]:
+            dirty_player_locations = player_ship.move(settings.D_UP , is_attacking)
 
-        elif keystate[K_DOWN]:
-            player_ship.move((0 , 1) , "down" , is_attacking)
-            
+        elif keystate[pygame.K_DOWN]:
+            dirty_player_locations = player_ship.move(settings.D_DOWN, is_attacking)
+        
+        g_dirty_rects += dirty_player_locations
+        
         #Blit evrything in place...
-        screen.fill(BLUE)
-        screen.blit(game_board.bg_surface , game_board.bg_rect)
-        for i in fill_rects:
+        screen.fill(settings.BACKGROUND_FILL_COLOR)
+        
+        for i in g_dirty_rects:
+            import pdb; pdb.set_trace()
+            screen.blit(game_board.bg_surface.subsurface(i), i)
+            
+        
+        for i in player_ship.line_segments:
             screen.fill((255 , 255 , 255) , i)
+            
         screen.blit(player_ship.image , player_ship.rect)
-        pygame.display.update(dirty_rects)
-        if len(fill_rects):
-            pygame.display.update(fill_rects[-1])
-        dirty_rects = []        #Clean the list for the next run
+        
+        pygame.display.update(g_dirty_rects)
+        if len(player_ship.line_segments):
+            pygame.display.update(player_ship.line_segments)
+            
+        g_dirty_rects = []        #Clean the list for the next run
         is_attacking = False
+        
+        print clock.get_fps()
 
 
 if __name__ == "__main__":
