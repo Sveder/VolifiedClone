@@ -1,21 +1,27 @@
+import os
+
+import pygame
+
 import atexit
 import settings
 import traceback
 
 g_open_log_file = None
 
-###def load_image(path):
-###    """
-###    Loads the image and returns it and it's rect.
-###    """
-###    #Check if the file exists:
-###    assert os.path.isfile(path) , "A game file doesn't exist: %s" % path
-###    
-###    #Load the image and return the needed values:
-###    image = pygame.image.load(path)
-###    rect = image.get_rect()
-###    return image , rect
-###
+def load_image(path):
+    """
+    Loads the image and returns it and it's rect.
+    """
+    #Check if the file exists:
+    if not os.path.isfile(path):
+        raise ValueError("Image requested to load doesn't exist: %s" % path)
+    
+    #Load the image and return the needed values:
+    image = pygame.image.load(path)
+    rect = image.get_rect()
+    return image , rect
+
+
 ###def resize_image(path , x , y):
 ###    """
 ###    Resizes the image in the path path to the specified size

@@ -1,24 +1,27 @@
+import time
 
+import pygame
+pygame.init()
+from pygame.colordict import THECOLORS
 
 import settings
-from settings import log
+import GameBoard
+from utilities import log
 
 
 def main():
     """
     The main game function
     """
-    Log("Game started.")
+    log("Game started.")
     
     #Initialize the gameboard class and screen:
-    flag = 0
-
-    screen = pygame.display.set_mode(SCREEN_SIZE , flag)
-    screen.fill(BLUE)
+    screen = pygame.display.set_mode(settings.SCREEN_SIZE, 0)
+    screen.fill(settings.BACKGROUND_FILL_COLOR)
     
-    game_board = GameBoard()
-    screen.blit(game_board.bg_surface , game_board.bg_rect)
-   
+    game_board = GameBoard.GameBoard()
+    screen.blit(game_board.bg_surface, game_board.bg_rect)
+
     #Initialize the player ship:
     player_ship = Player()
     screen.blit(player_ship.image , player_ship.rect)

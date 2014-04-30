@@ -1,40 +1,44 @@
+import pygame
+
 import settings
+import utilities
 
 class Player(pygame.sprite.Sprite):
     """
     The class of the player ship.
     """
-    def __init__(self):
+    def __init__(self, game_board):
         """
         Initializes the player ship parameters.
         """
+        pygame.sprite.Sprite.__init__(self)
+        
+        self.game_board = game_board
+        
         #Load the player image ship:
-        image_file_path = settings.PLAYER_SHIP_IMAGE_NAME
-        self.image , image_rect = load_image(image_file_path)
-        self.rect = image_rect
-        self.rect.center = game_board.bg_rect.topleft
+        image_file_path = settings.PLAYER_SHIP_IMAGE_PATH
+        self.image , self.rect = utilities.load_image(image_file_path)
+        
+        self.rect.center = self.game_board.get_player_start_position()
         
         #Declare some variables:
-        self.movement_per_press = PLAYER_MOVE_SPEED
-        self.current_direction = "up"
+        self.movement_per_press = settings.PLAYER_MOVE_SPEED
+        self.current_direction = settings.D_DOWN
         self.is_attacking = False
         self.num_of_lines = 0
         self.num_of_points = 0
             
 
-    def FillPlace(self):
+    def fill_place(self):
         """
-        Fills the area the player 'ate' after he finished moving
+        Fills the area the player 'ate' after he finished moving.
         """
-        global fill_rects
-        for i in fill_rects:
-            print i.size
-        fill_rects = []            
+        ###WRITE THE CODE
 
            
-    def move(self , direction , direction_in_words , is_attacking = False):
+    def move(self, direction, is_attacking = False):
         """
-        Moves the ship
+        Moves the ship if possible.
         """
         #Adjust the direction of the image:
         if direction_in_words != self.current_direction:
