@@ -1,7 +1,13 @@
 import os
 
-#Debug level:
+#-------------------------------------------------------------------------------
+#Debug parameters:
+#-------------------------------------------------------------------------------
 DEBUG = True
+
+SHOULD_LOG_TO_FILE = True
+LOG_FILE = os.path.join(os.curdir, "logs", "last_run.log")
+
 
 
 BLUE = (30 , 0 , 0)
@@ -28,8 +34,6 @@ DIRECTIONS_DICT = {"up" : 1 ,
 ASSETS_DIRECTORY = os.path.join(os.curdir, "assets")
 
 MAIN_CONFIG = os.path.join(ASSETS_DIRECTORY, "game.ini")
-
-LOG_FILE = os.path.join(os.curdir, "logs", "last_run.log")
 
 IMAGE_FOLDER = os.path.join(ASSETS_DIRECTORY, "images")
 BACKGROUND_SPACE_IMAGE_NAME = os.path.join(IMAGE_FOLDER, "BGSpace.jpg")
