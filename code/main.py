@@ -6,6 +6,7 @@ from pygame.colordict import THECOLORS
 
 import Player
 import settings
+import BaseEnemy
 import GameBoard
 from utilities import log
 
@@ -24,11 +25,16 @@ def main():
     screen.fill(settings.BACKGROUND_FILL_COLOR)
     
     game_board = GameBoard.GameBoard()
-    screen.blit(game_board.bg_surface, game_board.bg_rect)
+    screen.fill(THECOLORS["blue"], game_board.bg_rect)
 
     #Initialize the player ship:
     player_ship = Player.Player(game_board)
     screen.blit(player_ship.image , player_ship.rect)
+    
+    #Initialize enemies:
+    enemies = [BaseEnemy.BaseEnemy(game_board)]
+    for e in enemies:
+        screen.blit(e.image, e.rect)
     
     #Show evrything:
     pygame.display.flip()
@@ -42,7 +48,7 @@ def main():
     
     #Main event loop:
     while 1:
-        clock.tick()
+        clock.tick(120)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -78,16 +84,20 @@ def main():
         
         #Blit evrything in place...
         screen.fill(settings.BACKGROUND_FILL_COLOR)
+        screen.fill(THECOLORS["blue"], game_board.bg_rect)
         
-        for i in g_dirty_rects:
-            import pdb; pdb.set_trace()
-            screen.blit(game_board.bg_surface.subsurface(i), i)
-            
+        #screen.blit(game_board.bg_surface, game_board.bg_rect)
+        for e in enemies:
+            screen.blit(e.image, e.rect)
+            if pygame.sprite.collide_rect(e, player_ship):
+                #Death by touching enemy
+                pass
         
         for i in player_ship.line_segments:
             screen.fill((255 , 255 , 255) , i)
             
         screen.blit(player_ship.image , player_ship.rect)
+        
         
         pygame.display.update(g_dirty_rects)
         if len(player_ship.line_segments):

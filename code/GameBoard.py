@@ -53,4 +53,6 @@ class GameBoard(pygame.sprite.Sprite):
         return self.bg_rect.topleft
     
     
+    def get_enemy_spawn(self):
+        return self.bg_rect.center
     

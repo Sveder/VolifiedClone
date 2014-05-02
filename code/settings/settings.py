@@ -19,7 +19,7 @@ GAME_BOARD_SIZE = (760 , 530)               #The size of the game board
 BG_RECT = [20 , 50 , 760 , 530]             #Size of the bg image - to allow full ship view
 
 
-PLAYER_MOVE_SPEED = 5                       #Number of pixels the player moves
+PLAYER_MOVE_SPEED = 3                       #Number of pixels the player moves
                                             #on a single key press
                                             
 
@@ -50,3 +50,5 @@ IMAGE_FOLDER = os.path.join(ASSETS_DIRECTORY, "images")
 
 BACKGROUND_SPACE_IMAGE_PATH = os.path.join(IMAGE_FOLDER, "BGSpace.jpg")
 PLAYER_SHIP_IMAGE_PATH = os.path.join(IMAGE_FOLDER, "player_ship.gif")
+BASE_ENEMY_IMAGE_PATH = os.path.join(IMAGE_FOLDER, "base_enemy.gif")
+
