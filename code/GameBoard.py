@@ -56,3 +56,5 @@ class GameBoard(pygame.sprite.Sprite):
     def get_enemy_spawn(self):
         return self.bg_rect.center
     
+    
+    def resolver_what_was_eaten(self, filled_lines):
